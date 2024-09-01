@@ -13,12 +13,29 @@ oddelovac = '-----------------------------------------------'
 pozdrav = 'Hi there!'
 uvod = '''I've generated a random 4 digit number for you.\nLet's play a bulls and cows game.'''
 
+#vypíše úvodní pozdrav
 def vypis_uvod():
     print(f'{oddelovac}\n{pozdrav}\n{oddelovac}\n{uvod}\n{oddelovac}')
 
+#generuje unikátní kód, s ošetřením 0 na začátku a neopakování číslic
 def generuj_kod():
-    return ''.join(map(str, random.sample(range(1, 10), k=4)))
 
+    kod1 = random.sample(range(1, 10), 1)
+    kod2 = list(range(0,10))
+    kod2.remove(kod1[0])
+    kod2 = random.sample(kod2,3)
+    
+    return ''.join(map(str,(kod1+kod2)))
+
+#sbírá číslo hráče, spajo s funkcí validuj vstup
+def ziskej_hracske_cislo():
+    while True:
+        hrac_cislo = input('Enter a number: ')
+        if validuj_vstup(hrac_cislo):
+            return hrac_cislo
+
+
+#oveří jestli hráč zadává validní vstup, spajo s funkcí ziskej_hracske_cislo
 def validuj_vstup(hrac_cislo):
     if len(hrac_cislo) != 4:
         print('Enter four digit number')
@@ -34,41 +51,32 @@ def validuj_vstup(hrac_cislo):
         return False
     return True
 
-def ziskej_hracske_cislo():
-    while True:
-        hrac_cislo = input('Enter a number: ')
-        if validuj_vstup(hrac_cislo):
-            return hrac_cislo
-
-def vyhodnot_hru(hrac_cislo, kod_1):
-    zip_kodu = tuple(zip(hrac_cislo, kod_1))
-    bulls = sum(x == y for x, y in zip_kodu)
-    cows = sum(hrac_cislo.count(z) for z in kod_1) - bulls
+#vyhodnocuje počet bulls a cows
+def vyhodnot_hru(hrac_cislo, kod):
+#    zip_kodu = tuple(zip(hrac_cislo, kod)
+    bulls = sum(x == y for x, y in zip(hrac_cislo, kod))
+    cows = sum(x in kod for x in hrac_cislo) - bulls
     return bulls, cows
 
+#tiskne výsledek s ohledem na množné číslo slov bulls a cows
 def tiskni_vysledek(bulls, cows):
-    if bulls == 1 and cows == 1:
-        print(bulls, 'bull', cows, 'cow')
-    elif bulls == 1:
-        print(bulls, 'bull', cows, 'cows')
-    elif cows == 1:
-        print(bulls, 'bulls', cows, 'cow')
-    else:
-        print(bulls, 'bulls', cows, 'cows')
+    print(f"{bulls} bull{'s' if bulls != 1 else ''}, {cows} cow{'s' if cows != 1 else ''}")
 
+
+#samotná hra
 def hra():
-    kod_1 = generuj_kod()
-    pokusy = 0
-    start_time = datetime.now()
-    print(kod_1)  # tento řádek můžeš odstranit nebo zakomentovat, pokud nechceš zobrazovat kód při vývoji
+    kod = generuj_kod()
+    pokusy = 0 #pro počítání pokusů na uhádnutí čísla
+    start_time = datetime.now() #ukládá okamžik stratu hry
+    print(kod)  # tento řádek můžeš odstranit nebo zakomentovat, pokud nechceš zobrazovat kód při vývoji
 
     while True:
-        pokusy += 1
+        pokusy += 1 #když se začně hrát zvýší počet pokusů při neuhádnutém pokusu
         hrac_cislo = ziskej_hracske_cislo()
-        bulls, cows = vyhodnot_hru(hrac_cislo, kod_1)
+        bulls, cows = vyhodnot_hru(hrac_cislo, kod)
         if bulls == 4:
             print(f'''{oddelovac}\nCorrect, you've guessed the right number in {pokusy} {'guess' if pokusy == 1 else 'guesses'}.''')
-            end_time = datetime.now()
+            end_time = datetime.now() #získává okamžik správného uhodnutí kódu
             doba_trvani = end_time - start_time
             doba_trvani_zaokr = doba_trvani - timedelta(microseconds=doba_trvani.microseconds)
             doba_string = str(doba_trvani_zaokr)
@@ -78,6 +86,7 @@ def hra():
         else:
             tiskni_vysledek(bulls, cows)
 
+#zobrazuje historii
 def zobrazit_historii():
     print(f'{oddelovac}\nGame History\n{oddelovac}')
     if historie_pokusu:
@@ -91,6 +100,7 @@ def zobrazit_historii():
 historie_pokusu = []
 vypis_uvod()
 
+#funkce pro dotaz zda chce hráč hrát dál
 while True:
     hra()
     zobrazit_historii()
