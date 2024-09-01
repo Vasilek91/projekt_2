@@ -20,12 +20,12 @@ def vypis_uvod():
 #generuje unikátní kód, s ošetřením 0 na začátku a neopakování číslic
 def generuj_kod():
 
-    kod1 = random.sample(range(1, 10), 1)
+    kod1 = random.choice(range(1, 10))
     kod2 = list(range(0,10))
-    kod2.remove(kod1[0])
+    kod2.remove(kod1)
     kod2 = random.sample(kod2,3)
     
-    return ''.join(map(str,(kod1+kod2)))
+    return str(kod1) + ''.join(map(str, kod2))
 
 #sbírá číslo hráče, spajo s funkcí validuj vstup
 def ziskej_hracske_cislo():
